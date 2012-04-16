@@ -14,7 +14,7 @@ struct node
 	struct node* right;
 };
 
-struct node* preprocessTree(pair<double,double> p_sx[], pair<double,double> p_sy[], int Nx, int Ny, int depth);
+struct node* preprocessTree(pair<double,double> p_sx[], pair<double,double> p_sy[], int N, int depth);
 bool sortX (pair<double,double> i,pair<double,double> j);
 bool sortY (pair<double,double> i,pair<double,double> j);
 void fillNode(int N, pair<double, double> left_s1[], pair <double, double> right_s1[], pair<double, double> original_s1[],
@@ -23,6 +23,9 @@ void fillNode(int N, pair<double, double> left_s1[], pair <double, double> right
 int double_equal(double a, double b);
 int double_lt(double a, double b);
 int double_gt(double a, double b);
+void inorder(struct node* root);
+void preorder(struct node* root);
+
 int main()
 {
 	//Takes in N points <x,y> and R <x1,x2,y1,y2> Ranges
@@ -84,65 +87,54 @@ int main()
 	}
 	*/
 	struct node* root;
-	root = preprocessTree(p_sx, p_sy, N, N, 0);
+	root = preprocessTree(p_sx, p_sy, N, 0);
 	
-	cout<<"Root\n"<<root->value.first<< " "<<root->value.second;
+	//cout<<"Root\n"<<root->value.first<< " "<<root->value.second;
+	//cout<<"Preorder \n";
+	//inorder(root);
+	//cout<<"Inorder \n";
+	//preorder(root);
+	
+	searchTree(root, r_x[i].first, r_x[i].second, r_y[i].first, r_y[i].second, 0);
 }
 
-struct node* preprocessTree(pair<double,double> p_sx[], pair<double,double> p_sy[], int Nx, int Ny,int depth)
+struct node* preprocessTree(pair<double,double> p_sx[], pair<double,double> p_sy[], int N, int depth)
 {
-	int i, N;
-	if(depth%2 ==0) //We need median of x coordinates
+	int i;
+	if(N <= 0) return NULL;
+	struct node* root = new node;
+	pair<double,double>  p_sx_l[N/2];
+	pair<double, double> p_sx_r [N/2];
+	pair<double, double> p_sy_l[N/2];
+	pair<double, double> p_sy_r[N/2];
+
+	if(depth%2 ==0)
 	{
-		N = Nx;
-		
-		if(N <= 0) return NULL;
-		
-		struct node* root = new node;
-		
-		pair<double,double>  p_sx_l[N/2];
-		pair<double, double> p_sx_r [N/2];
-		pair<double, double> p_sy_l[N/2];
-		pair<double, double> p_sy_r[N/2];
-		
 		fillNode(N, p_sx_l, p_sx_r, p_sx, p_sx[N/2], p_sy_l, p_sy_r, p_sy, FILTER_X);
-		
 		root->value = p_sx[N/2];
-		root->left = preprocessTree(p_sx_l, p_sy, N/2, N, depth+1);
-		
-		if(N%2) // Odd numbered call
-			root->right = preprocessTree(p_sx_r, p_sy, N/2, N, depth+1);
-		else // even numbered call
-			root->right =  preprocessTree(p_sx_r, p_sy, N/2 - 1, N, depth+1);;
-		
+		root->left = preprocessTree(p_sx_l, p_sy_l, N/2, depth+1);
+		if(N%2)
+			root->right = preprocessTree(p_sx_r, p_sy_r, N/2, depth+1);
+		else 
+			root->right =  preprocessTree(p_sx_r, p_sy_r, N/2 - 1,  depth+1);;
 		return root;
 		
 	}
 	else
 	{
-		/*N = Ny;
-		
-		if(N <= 0) return NULL;
 		
 		struct node* root = new node;
-		pair<double,double> p_sy_l[N/2];
-		pair<double, double> p_sy_r [N/2];
-
-		fillNode(N, p_sy_l, p_sy_r, p_sy);
-
+		fillNode(N, p_sy_l, p_sy_r, p_sy, p_sy[N/2], p_sx_l, p_sx_r, p_sx, FILTER_Y);
 		root->value = p_sy[N/2];
-
-		// Left Call
-		root->left = preprocessTree(p_sy_l, p_sy, N/2, N, depth+1);
-		if(N%2) // Odd numbered call
-			root->right = preprocessTree(p_sy_r, p_sy, N/2, N, depth+1);
-		else // even numbered call
-			root->right =  preprocessTree(p_sy_r, p_sy, N/2 - 1, N, depth+1);;
+		root->left = preprocessTree(p_sy_l, p_sy_l, N/2, depth+1);
+		if(N%2) 
+			root->right = preprocessTree(p_sy_r, p_sy_r, N/2, depth+1);
+		else 
+			root->right =  preprocessTree(p_sy_r, p_sy_r, N/2 - 1, depth+1);;
 		
-		return root;*/
-	
+		return root;
 	}
-	return NULL;
+
 }
 
 
@@ -218,7 +210,44 @@ void fillNode(int N, pair<double, double> left_s1[], pair <double, double> right
 			}
 		}
 
-		cout<<"Median x "<<median.first<<" Median y"<< median.second<<endl;
+		else if(filter_type == FILTER_Y)
+		{
+			
+			for(i = 0;i < N; i++)
+			{
+				//Same record as the median - We dont want to store it!
+				if( double_equal(median.first, original_s2[i].first) && 
+				    double_equal (median.second, original_s2[i].second)  )
+				{
+					continue;
+				}
+				
+				// The X's are far separated and the entity original_s2[i] lies on left of median
+				else if(double_gt(median.second, original_s2[i].second))
+				{
+					left_s2[l++] = original_s2[i];
+				} 	
+				
+				else if( double_lt(median.second, original_s2[i].second) )
+				{
+					right_s2[r++] = original_s2[i];
+				} 	
+				
+				//same X value
+				else if( double_equal(original_s2[i].second, median.second) )
+				{
+					if( double_lt(median.first, original_s2[i].first))
+					{
+						right_s2[r++] = original_s2[i];
+					}
+					else
+					{
+						left_s2[l++] = original_s2[i];
+					}
+				}
+			}
+		}
+		/*cout<<"Median x "<<median.first<<" Median y"<< median.second<<endl;
 
 		cout<<"Left x:\n";
 		for(i = 0; i <N/2; i++)
@@ -237,7 +266,7 @@ void fillNode(int N, pair<double, double> left_s1[], pair <double, double> right
 		}
 		
 		
-		cout<<"Left y:\n";
+		cout<<"\nLeft y:\n";
 		for(i = 0; i <N/2; i++)
 			cout<<left_s2[i].first<<" "<<left_s2[i].second<<" | ";
 		
@@ -254,8 +283,45 @@ void fillNode(int N, pair<double, double> left_s1[], pair <double, double> right
 		
 		}
 		
+		cout<<"\n************\n";
+*/
 
+}
 
+int searchTree(struct node* root, int x1, int x2, int y1, int y2, int depth)
+{
+	double node_x, node_y;
+	node_x = root->value.first;
+	node_y = root->value.second;
+	int left_ans;
+	int right_ans;
+	if(depth%2 == 0)
+	{
+		if( node_x >=x1 && node_x<= x2)
+		{
+		
+			left_ans = searchTree(root->left, x1, x2, y1, y2, depth+1);
+			right_ans = searchTree(root->right, x1, x2, y1, y2, depth+1);
+		}
+	}
+}
+
+void preorder(struct node* root)
+{
+	if (!root) return;
+	preorder(root->left);
+	
+	cout<< "X "<<root->value.first<<" Y "<<root->value.second<<endl;
+	
+	preorder(root->right); 
+}
+
+void inorder(struct node* root)
+{
+	if (!root) return;
+	cout<< "X "<<root->value.first<<" Y "<<root->value.second<<endl;
+	inorder(root->left);	
+	inorder(root->right); 
 }
 
 int double_equal(double a, double b)
