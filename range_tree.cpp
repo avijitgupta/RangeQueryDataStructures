@@ -12,15 +12,15 @@ struct node
 	pair<double, double> value;
 	struct node* left;
 	struct node* right;
-	double *y_root;
+	pair<double, double> *y_root;
 	int Ny;
 };
 
 
-void merge(double *A, int La, double* B, int Lb, double* merged);
+void merge(pair<double, double> *A, int La, pair<double, double>* B, int Lb, pair<double, double>* merged);
 bool sortX (pair<double,double> i,pair<double,double> j);
 bool sortY (pair<double,double> i,pair<double,double> j);
-int searchTree(struct node* root, double x1, double x2, double y1, double y2, int depth);
+int searchTree(struct node* root, double x1, double x2, double y1, double y2);
 int double_equal(double a, double b);
 int double_lt(double a, double b);
 int double_gt(double a, double b);
@@ -94,7 +94,7 @@ int main()
 
 	for(i=0;i<R;i++)
 	{
-	//	cout<<searchTree(root, r_x[i].first, r_x[i].second, r_y[i].first, r_y[i].second, 0);
+		cout<<searchTree(root, r_x[i].first, r_x[i].second, r_y[i].first, r_y[i].second);
 	//	cout<<endl;
 	}
 
@@ -107,7 +107,7 @@ struct node* preprocessTree(int low, int high)
 		return NULL;
 	}
 	
-	double* y_subtree;
+	pair<double, double>* y_subtree;
 	
 	int mid = (high + low)/2;
 	struct node* root;
@@ -118,8 +118,8 @@ struct node* preprocessTree(int low, int high)
 	
 	if(root->left == NULL && root->right == NULL) // A leaf node
 	{
-		y_subtree = (double*) malloc(sizeof(double));
-		*y_subtree = p_sx[mid].second;
+		y_subtree = (pair<double, double>*) malloc(sizeof(double));
+		*y_subtree = p_sx[mid];
 		//cout<<"Allocated "<< p_sx[mid].second <<" to leaf "<< p_sx[mid].first<<" "<<p_sx[mid].second;
 		root->Ny = 1;
 		root->y_root = y_subtree;
@@ -129,7 +129,7 @@ struct node* preprocessTree(int low, int high)
 	{
 		int i= 0;
 		int y_tree_len = root->right->Ny + 1; // Current node's information
-		y_subtree = (double*) malloc( y_tree_len * sizeof(double) );
+		y_subtree = (pair<double, double>*) malloc( y_tree_len * sizeof(pair<double, double>) );
 		
 		for(i = 0; i<y_tree_len - 1; i++)
 		{
@@ -138,15 +138,16 @@ struct node* preprocessTree(int low, int high)
 		
 		i=0;
 		
-		while(y_subtree[i] < root->value.second && i < (y_tree_len -1) )i++;
+		while(y_subtree[i].second < root->value.second && i < (y_tree_len -1) )i++;
 		
-		double temp = y_subtree[i]; 
-		y_subtree[i] = root->value.second;
+		pair<double, double> temp = y_subtree[i]; 
+		
+		y_subtree[i] = root->value;
 		i++;
 		
 		while(i < y_tree_len)
 		{
-			double k = y_subtree[i];
+			pair<double, double> k = y_subtree[i];
 			y_subtree[i] = temp;
 			temp = k;
 			i++;
@@ -160,7 +161,7 @@ struct node* preprocessTree(int low, int high)
 	{
 		int i= 0;
 		int y_tree_len = root->left->Ny + 1; // Current node's information
-		y_subtree = (double*) malloc( y_tree_len * sizeof(double) );
+		y_subtree = (pair<double, double>*) malloc( y_tree_len * sizeof(pair<double, double>) );
 		
 		for(i = 0; i<y_tree_len - 1; i++)
 		{
@@ -169,15 +170,15 @@ struct node* preprocessTree(int low, int high)
 		
 		i=0;
 		
-		while(y_subtree[i] < root->value.second && i < (y_tree_len -1) )i++;
+		while(y_subtree[i].second < root->value.second && i < (y_tree_len -1) )i++;
 		
-		double temp = y_subtree[i]; 
-		y_subtree[i] = root->value.second;
+		pair<double, double> temp = y_subtree[i]; 
+		y_subtree[i] = root->value;
 		i++;
 		
 		while(i < y_tree_len)
 		{
-			double k = y_subtree[i];
+			pair<double, double> k = y_subtree[i];
 			y_subtree[i] = temp;
 			temp = k;
 			i++;
@@ -191,20 +192,20 @@ struct node* preprocessTree(int low, int high)
 	{
 		int i= 0;
 		int y_tree_len = root->left->Ny + root->right->Ny + 1; // Current node's information
-		y_subtree = (double*) malloc( y_tree_len * sizeof(double) );
+		y_subtree = (pair<double, double>*) malloc( y_tree_len * sizeof(pair<double, double>) );
 		
 		//merge 
 		merge(root->left->y_root, root->left->Ny, root->right->y_root, root->right->Ny, y_subtree);
 		//Insert root->value in the merged array
-		while(y_subtree[i] < root->value.second && i < (y_tree_len -1) )i++;
+		while(y_subtree[i].second < root->value.second && i < (y_tree_len -1) )i++;
 		
-		double temp = y_subtree[i]; 
-		y_subtree[i] = root->value.second;
+		pair<double, double> temp = y_subtree[i]; 
+		y_subtree[i] = root->value;
 		i++;
 		
 		while(i < y_tree_len)
 		{
-			double k = y_subtree[i];
+			pair<double, double> k = y_subtree[i];
 			y_subtree[i] = temp;
 			temp = k;
 			i++;
@@ -221,12 +222,12 @@ struct node* preprocessTree(int low, int high)
 
 //merges A and B into merged
 
-void merge(double *A, int La, double* B, int Lb, double* merged)
+void merge(pair<double, double> *A, int La, pair<double, double>* B, int Lb, pair<double, double>* merged)
 {
 	int i=0, j=0, k=0;
 	while(i < La && j< Lb)
 	{
-		if(double_lt(A[i],B[j])) merged[k++] = A[i++];
+		if(double_lt(A[i].second,B[j].second)) merged[k++] = A[i++];
 		else merged[k++] = B[j++];
 	}	
 	while(i < La) merged[k++] = A[i++];
@@ -234,6 +235,10 @@ void merge(double *A, int La, double* B, int Lb, double* merged)
 	
 }
 
+int searchTree(struct node* root, double x1, double x2, double y1, double y2)
+{
+	
+}
 
 void inorder(struct node* root)
 {
@@ -254,7 +259,7 @@ void preorder(struct node* root)
 	
 	int len = root->Ny;
 	for(int i=0 ; i<len ; i++)
-		cout<<root->y_root[i]<< " ";
+		cout<<root->y_root[i].first<< " "<<root->y_root[i].second<<" | ";
 	
 	cout<<endl;
 	preorder(root->left);	
