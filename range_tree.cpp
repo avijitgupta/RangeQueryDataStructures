@@ -30,7 +30,10 @@ struct node* preprocessTree(int low, int high);
 struct node* searchLeftLeaf(struct node* root, double low);
 struct node* searchRightLeaf(struct node* root, double high);
 struct node *LCA(struct node *root, struct node *p, struct node *q);
-int findLeftSubtree(struct node *root, struct node* parent, int x1, int y1, int y2, int checkAncestor, int type);
+int findLeftSubtree(struct node *root, struct node* parent, double x1, double x2,
+			          double y1, double y2, int checkAncestor, int type);
+int inBoundedBox(double x, double y, double x1, double x2, double y1, double y2);
+int binarySearch( double value, pair<double, double> a[], int l, int r );
 pair<double,double> *p_sx; 
 int main()
 {
@@ -249,27 +252,123 @@ int searchTree(struct node* root, double x1, double x2, double y1, double y2)
 	cout<<"Right Leaf "<<right_leaf->value.first<<" "<<right_leaf->value.second<<endl;
 	cout<<"LCA "<<lca->value.first<<" "<<lca->value.second<<endl;*/
 	
-	int left_result = findLeftSubtree(lca->left, lca, x1, y1, y2, 0, LEFT_NODE);
+	int left_result = findLeftSubtree(lca->left, lca, x1, x2, y1, y2, 0, LEFT_NODE);
+	cout<<"Left Nodes " << left_result<<endl;
 //	int right_result = findLeftSubtree(lca, lca->left, x1, y1, y2, 0);
 }
 
-int findLeftSubtree(struct node *root, struct node* parent, int x1, int y1, int y2, int checkAncestor, int type)
+int findLeftSubtree(struct node *root, struct node* parent, double x1, double x2, 
+			    double y1, double y2, int checkAncestor, int type)
 {
 	int count = 0;
+	double x, y;
 	if(checkAncestor == 1)
 	{
 		if(type == LEFT_NODE)
 		{
 			// Search in the parent's y subtree the range of y values
-			if(parent->y_root)
+			if(parent->right)
 			{
+				int start = binarySearch(y1, parent->right->y_root, 0, parent->right->Ny - 1);
+				//cout<<"Parent "<< parent->value.first << " " << parent->value.second<<endl;
+				while(start < parent->right->Ny)
+				{
+					//cout<<" start "<< start<<" ";	
+					x = parent->right->y_root[start].first;
+					y = parent->right->y_root[start].second;
+					//cout<<"Outside box " << x<<" "<< y<< endl;
+						
+					if(double_gt(y, y2))
+					{ 
+						//cout<<"Broken " << x<<" "<< y<< endl;
+						break;
+					}
+					if( inBoundedBox(x, y, x1, x2, y1, y2) )
+					{
+						//cout<<"In box " << x<<" "<< y<< endl;
+						count ++;
+					}
+					start ++;
+				}
 				
 			}
+		}
+		else
+		{
+			x = parent->value.first;
+			y = parent->value.second;
+			
+			if( inBoundedBox(x, y, x1, x2, y1, y2) )
+			{
+				count ++;
+			}
+		}
+		
+	}
+	
+	
+	if(!root->left && !root->right)
+	{
+			x = root->value.first;
+			y = root->value.second;
+			
+			if( inBoundedBox(x, y, x1, x2, y1, y2) )
+			{
+				count ++;
+			}
+			
+			return count;
+	}
+	
+	if(double_gt(x1, root->value.first))
+	{
+		if(root->right)
+		{
+			int result =  count + findLeftSubtree(root->right, root, x1, x2, y1, y2, 1, RIGHT_NODE);
+			return result;
+		}
+		else return count;    //if root->right isnt true, root->left has to be true and the leaf too! 
+					  // This is because the tree is balanced
+	}
+	else //equal case
+	{
+		if(root->left)
+		{
+			int result =  count + findLeftSubtree(root->left, root, x1, x2, y1, y2, 1, LEFT_NODE);
+			return result;
+		}
+		//	return searchLeftLeaf(root->left, low);
+		else 
+		{
+			x = root->right->value.first;  //if root->left isnt true, root->RIGHT has to be true and the leaf too! 
+			y = root->right->value.second;
+			if( inBoundedBox(x, y, x1, x2, y1, y2) )
+			{
+				count ++;
+			}
+			
+			return count;
 		}
 	}
 	
 	
+	
 }
+
+int binarySearch( double value, pair<double, double> a[], int l, int r )
+{
+    long low=l;
+    long high = l>(r+1)?l:(r+1);
+
+    while(low<high)
+    {
+        long mid = (low +high)/2;
+        if ( double_lt(value,a[mid].second) || double_equal(value, a[mid].second) ) high =mid;
+        else  low= mid+1;
+    }
+    return high;
+}
+
 
 struct node* searchLeftLeaf(struct node* root, double low)
 {
@@ -366,6 +465,17 @@ int double_gt(double a, double b)
 	return 0;
 }
 
+int inBoundedBox(double x, double y, double x1, double x2, double y1, double y2)
+{
+	if( (double_equal(x,x1) || double_gt(x, x1) ) && 
+	    (double_equal(x,x2) || double_lt(x, x2) ) &&
+	    (double_equal(y,y1) || double_gt(y, y1) ) && 
+	    (double_equal(y,y2) || double_lt(y, y2) ) )
+	    
+	    return 1;
+	    
+	return 0;
+}
 
 bool sortX (pair<double,double> i,pair<double,double> j) 
 { 
