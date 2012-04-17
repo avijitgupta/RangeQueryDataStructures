@@ -8,7 +8,7 @@ int double_equal(double a, double b);
 int double_lt(double a, double b);
 int double_equal(double a, double b)
 {
-	if( ((a-b) < EPSILON && (a-b) > 0) || ((b-a) < EPSILON && (b-a) > 0) )
+	if( ((a-b) < EPSILON && (a-b) >= 0) || ((b-a) < EPSILON && (b-a) >= 0) )
 		return 1;
 	return 0;
 	     

@@ -12,6 +12,8 @@ struct node
 	pair<double, double> value;
 	struct node* left;
 	struct node* right;
+	double **y_root;
+	int Ny;
 };
 
 struct node* preprocessTree(pair<double,double> p_sx[], pair<double,double> p_sy[], int N, int depth);
