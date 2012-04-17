@@ -32,6 +32,8 @@ struct node* searchRightLeaf(struct node* root, double high);
 struct node *LCA(struct node *root, struct node *p, struct node *q);
 int findLeftSubtree(struct node *root, struct node* parent, double x1, double x2,
 			          double y1, double y2, int checkAncestor, int type);
+int findRightSubtree(struct node *root, struct node* parent, double x1, double x2, 
+			    	  double y1, double y2, int checkAncestor, int type);
 int inBoundedBox(double x, double y, double x1, double x2, double y1, double y2);
 int binarySearch( double value, pair<double, double> a[], int l, int r );
 pair<double,double> *p_sx; 
@@ -101,9 +103,10 @@ int main()
 */
 	for(i=0;i<R;i++)
 	{
-		cout<<"Range: "<<r_x[i].first<<" "<<r_x[i].second<<endl;
-		searchTree(root, r_x[i].first, r_x[i].second, r_y[i].first, r_y[i].second);
-	//	cout<<endl;
+	//	cout<<"Range: "<<r_x[i].first<<" "<<r_x[i].second<<" "<<r_y[i].first<<" "<< r_y[i].second<<endl;
+		int num_points = searchTree(root, r_x[i].first, r_x[i].second, r_y[i].first, r_y[i].second);
+		//cout<<"Total points = "<<num_points<<endl;
+		cout<<num_points<<endl;
 	}
 
 }
@@ -253,8 +256,16 @@ int searchTree(struct node* root, double x1, double x2, double y1, double y2)
 	cout<<"LCA "<<lca->value.first<<" "<<lca->value.second<<endl;*/
 	
 	int left_result = findLeftSubtree(lca->left, lca, x1, x2, y1, y2, 0, LEFT_NODE);
-	cout<<"Left Nodes " << left_result<<endl;
-//	int right_result = findLeftSubtree(lca, lca->left, x1, y1, y2, 0);
+	//cout<<"Left Nodes " << left_result<<endl;
+	int right_result = findRightSubtree(lca->right, lca, x1, x2, y1, y2, 0, RIGHT_NODE);
+	//cout<<"Right Nodes " << right_result<<endl;
+	if( inBoundedBox(lca->value.first, lca->value.second, x1, x2, y1, y2) )
+	{
+		return left_result + right_result + 1;
+	}
+	
+	else return left_result + right_result;
+	
 }
 
 int findLeftSubtree(struct node *root, struct node* parent, double x1, double x2, 
@@ -262,6 +273,7 @@ int findLeftSubtree(struct node *root, struct node* parent, double x1, double x2
 {
 	int count = 0;
 	double x, y;
+	if(!root)return 0;
 	if(checkAncestor == 1)
 	{
 		if(type == LEFT_NODE)
@@ -293,16 +305,15 @@ int findLeftSubtree(struct node *root, struct node* parent, double x1, double x2
 				
 			}
 		}
-		else
+		
+		x = parent->value.first;
+		y = parent->value.second;
+		
+		if( inBoundedBox(x, y, x1, x2, y1, y2) )
 		{
-			x = parent->value.first;
-			y = parent->value.second;
-			
-			if( inBoundedBox(x, y, x1, x2, y1, y2) )
-			{
-				count ++;
-			}
+			count ++;
 		}
+		
 		
 	}
 	
@@ -354,6 +365,116 @@ int findLeftSubtree(struct node *root, struct node* parent, double x1, double x2
 	
 	
 }
+
+
+
+int findRightSubtree(struct node *root, struct node* parent, double x1, double x2, 
+			    double y1, double y2, int checkAncestor, int type)
+{
+	int count = 0;
+	double x, y;
+//cout<<"Init Parent "<< parent->value.first << " " << parent->value.second<<endl;
+	if(!root)return 0;
+	
+	if(checkAncestor == 1)
+	{
+		if(type == RIGHT_NODE)
+		{
+			// Search in the parent's y subtree the range of y values
+			//cout<<"Parent "<< parent->value.first << " " << parent->value.second<<endl;
+			if(parent->left)
+			{
+				int start = binarySearch(y1, parent->left->y_root, 0, parent->left->Ny - 1);
+
+				while(start < parent->left->Ny)
+				{
+					//cout<<" start "<< start<<" ";	
+					x = parent->left->y_root[start].first;
+					y = parent->left->y_root[start].second;
+					//cout<<"Outside box " << x<<" "<< y<< endl;
+						
+					if(double_gt(y, y2))
+					{ 
+						//cout<<"Broken " << x<<" "<< y<< endl;
+						break;
+					}
+					if( inBoundedBox(x, y, x1, x2, y1, y2) )
+					{
+						//cout<<"In box " << x<<" "<< y<< endl;
+						count ++;
+					}
+					start ++;
+				}
+				
+			}
+			
+		}
+		
+		// We always need to check the parent
+		x = parent->value.first;
+		y = parent->value.second;
+			
+		if( inBoundedBox(x, y, x1, x2, y1, y2) )
+		{
+			count ++;
+		}
+		
+		
+	}
+	
+	
+	if(!root->left && !root->right)
+	{
+			x = root->value.first;
+			y = root->value.second;
+			
+			if( inBoundedBox(x, y, x1, x2, y1, y2) )
+			{
+				count ++;
+			}
+			
+			return count;
+	}
+	
+	if(double_gt(x2, root->value.first) || double_equal(x2, root->value.first))
+	{
+		if(root->right)
+		{
+			//cout <<" I am here with count = " << count <<endl;
+			int result =  count + findRightSubtree(root->right, root, x1, x2, y1, y2, 1, RIGHT_NODE);
+			//cout <<" I am here with result = " << result << endl;
+			return result;
+		}
+		else 
+		{
+			x = root->left->value.first;  //if root->left isnt true, root->RIGHT has to be true and the leaf too! 
+			y = root->left->value.second;
+			if( inBoundedBox(x, y, x1, x2, y1, y2) )
+			{
+				count ++;
+			}
+			
+			return count;
+		}   
+	}
+	else
+	{
+		if(root->left)
+		{
+			int result =  count + findRightSubtree(root->left, root, x1, x2, y1, y2, 1, LEFT_NODE);
+			return result;
+		}
+
+		else 
+		{
+			return count;
+		}
+	}
+	
+	
+	
+}
+
 
 int binarySearch( double value, pair<double, double> a[], int l, int r )
 {
