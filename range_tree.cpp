@@ -2,8 +2,8 @@
 #include <cstdlib>
 #include <algorithm>
 #define EPSILON 0.00000000001
-#define FILTER_X 0
-#define FILTER_Y 1
+#define LEFT_NODE 0
+#define RIGHT_NODE 1
 using namespace std;
 
 
@@ -27,6 +27,10 @@ int double_gt(double a, double b);
 void inorder(struct node* root);
 void preorder(struct node* root);
 struct node* preprocessTree(int low, int high);
+struct node* searchLeftLeaf(struct node* root, double low);
+struct node* searchRightLeaf(struct node* root, double high);
+struct node *LCA(struct node *root, struct node *p, struct node *q);
+int findLeftSubtree(struct node *root, struct node* parent, int x1, int y1, int y2, int checkAncestor, int type);
 pair<double,double> *p_sx; 
 int main()
 {
@@ -86,15 +90,16 @@ int main()
 	root = preprocessTree(0, N-1);
 	free(p_sx);
 	
-	cout<<"Root\n"<<root->value.first<< " "<<root->value.second;
+/*	cout<<"Root\n"<<root->value.first<< " "<<root->value.second;
 	cout<<"Inorder \n";
 	inorder(root);
 	cout<<"Preorder \n";
 	preorder(root);
-
+*/
 	for(i=0;i<R;i++)
 	{
-		cout<<searchTree(root, r_x[i].first, r_x[i].second, r_y[i].first, r_y[i].second);
+		cout<<"Range: "<<r_x[i].first<<" "<<r_x[i].second<<endl;
+		searchTree(root, r_x[i].first, r_x[i].second, r_y[i].first, r_y[i].second);
 	//	cout<<endl;
 	}
 
@@ -237,7 +242,82 @@ void merge(pair<double, double> *A, int La, pair<double, double>* B, int Lb, pai
 
 int searchTree(struct node* root, double x1, double x2, double y1, double y2)
 {
+	struct node* left_leaf = searchLeftLeaf(root, x1);
+	struct node* right_leaf = searchRightLeaf(root, x2);
+	struct node* lca = LCA(root, left_leaf, right_leaf);
+	/*cout<<"Left Leaf "<<left_leaf->value.first<<" "<<left_leaf->value.second<<endl;
+	cout<<"Right Leaf "<<right_leaf->value.first<<" "<<right_leaf->value.second<<endl;
+	cout<<"LCA "<<lca->value.first<<" "<<lca->value.second<<endl;*/
 	
+	int left_result = findLeftSubtree(lca->left, lca, x1, y1, y2, 0, LEFT_NODE);
+//	int right_result = findLeftSubtree(lca, lca->left, x1, y1, y2, 0);
+}
+
+int findLeftSubtree(struct node *root, struct node* parent, int x1, int y1, int y2, int checkAncestor, int type)
+{
+	int count = 0;
+	if(checkAncestor == 1)
+	{
+		if(type == LEFT_NODE)
+		{
+			// Search in the parent's y subtree the range of y values
+			if(parent->y_root)
+			{
+				
+			}
+		}
+	}
+	
+	
+}
+
+struct node* searchLeftLeaf(struct node* root, double low)
+{
+	if(!root->left && !root->right)return root; 
+	
+	if(double_gt(low, root->value.first))
+	{
+		if(root->right)
+			return searchLeftLeaf(root->right, low);
+		else return root->left;    //if root->right isnt true, root->left has to be true and the leaf too! 
+					  // This is because the tree is balanced
+	}
+	else //equal case
+	{
+		if(root->left)
+			return searchLeftLeaf(root->left, low);
+		else return root->right;  //if root->left isnt true, root->RIGHT has to be true and the leaf too! 
+	}				  // This is because the tree is balanced
+}
+
+struct node* searchRightLeaf(struct node* root, double high)
+{
+	if(!root->left && !root->right)return root; 
+	
+	if(double_gt(high, root->value.first) || double_equal(high, root->value.first))
+	{
+		if(root->right)
+			return searchLeftLeaf(root->right, high);
+		else return root->left;    //if root->right isnt true, root->left has to be true and the leaf too! 
+					  // This is because the tree is balanced
+	}
+	else 
+	{
+		if(root->left)
+			return searchLeftLeaf(root->left, high);
+		else return root->right;  //if root->left isnt true, root->RIGHT has to be true and the leaf too! 
+	}	
+}
+
+
+struct node *LCA(struct node *root, struct node *p, struct node *q) {
+  if (!root || !p || !q) return NULL;
+  if (max(p->value.first, q->value.first) < root->value.first)
+    return LCA(root->left, p, q);
+  else if (min(p->value.first, q->value.first)  > root->value.first)
+    return LCA(root->right, p, q);
+  else
+    return root;
 }
 
 void inorder(struct node* root)
@@ -246,7 +326,6 @@ void inorder(struct node* root)
 	inorder(root->left);
 	
 	cout<< "X "<<root->value.first<<" Y "<<root->value.second<<endl;
-	
 	
 	inorder(root->right); 
 }
