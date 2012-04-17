@@ -120,8 +120,10 @@ struct node* preprocessTree(int low, int high)
 	{
 		y_subtree = (double*) malloc(sizeof(double));
 		*y_subtree = p_sx[mid].second;
+		//cout<<"Allocated "<< p_sx[mid].second <<" to leaf "<< p_sx[mid].first<<" "<<p_sx[mid].second;
 		root->Ny = 1;
 		root->y_root = y_subtree;
+		//cout<<"Allocated "<< *root->y_root <<" to leaf "<< p_sx[mid].first<<" "<<p_sx[mid].second;
 	}
 	else if (root->left ==NULL)
 	{
@@ -129,7 +131,12 @@ struct node* preprocessTree(int low, int high)
 		int y_tree_len = root->right->Ny + 1; // Current node's information
 		y_subtree = (double*) malloc( y_tree_len * sizeof(double) );
 		
-		y_subtree = root->right->y_root;
+		for(i = 0; i<y_tree_len - 1; i++)
+		{
+			y_subtree[i] =  root->right->y_root[i];
+		}
+		
+		i=0;
 		
 		while(y_subtree[i] < root->value.second && i < (y_tree_len -1) )i++;
 		
@@ -155,7 +162,12 @@ struct node* preprocessTree(int low, int high)
 		int y_tree_len = root->left->Ny + 1; // Current node's information
 		y_subtree = (double*) malloc( y_tree_len * sizeof(double) );
 		
-		y_subtree = root->left->y_root;
+		for(i = 0; i<y_tree_len - 1; i++)
+		{
+			y_subtree[i] =  root->left->y_root[i];
+		}
+		
+		i=0;
 		
 		while(y_subtree[i] < root->value.second && i < (y_tree_len -1) )i++;
 		
