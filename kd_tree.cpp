@@ -17,15 +17,15 @@ struct node
 struct node* preprocessTree(pair<double,double> p_sx[], pair<double,double> p_sy[], int N, int depth);
 bool sortX (pair<double,double> i,pair<double,double> j);
 bool sortY (pair<double,double> i,pair<double,double> j);
-void fillNode(int N, pair<double, double> left_s1[], pair <double, double> right_s1[], pair<double, double> original_s1[],
-	      pair<double, double> median, pair<double, double> left_s2[], pair <double, double> right_s2[], 
-	      pair<double, double> original_s2[], int filter_type);
+int searchTree(struct node* root, int x1, int x2, int y1, int y2, int depth);
 int double_equal(double a, double b);
 int double_lt(double a, double b);
 int double_gt(double a, double b);
 void inorder(struct node* root);
 void preorder(struct node* root);
-
+void fillNode(int N, pair<double, double> left_s1[], pair <double, double> right_s1[], pair<double, double> original_s1[],
+	      pair<double, double> median, pair<double, double> left_s2[], pair <double, double> right_s2[], 
+	      pair<double, double> original_s2[], int filter_type);
 int main()
 {
 	//Takes in N points <x,y> and R <x1,x2,y1,y2> Ranges
@@ -53,7 +53,7 @@ int main()
 		//Ensuring x1 < x2 & y1 < y2 
 		// Handle degenrate case of x1 = x2 / y1 = y2?
 		
-		if(a<b)
+		if(double_lt(a,b))
 		{
 			r_x[i].first = a;
 			r_x[i].second = b;
@@ -64,7 +64,7 @@ int main()
 			r_x[i].second = a;
 		}
 		
-		if(c<d)
+		if(double_lt(c,d))
 		{
 			r_y[i].first = c;
 			r_y[i].second = d;
@@ -94,8 +94,12 @@ int main()
 	//inorder(root);
 	//cout<<"Inorder \n";
 	//preorder(root);
-	
-	searchTree(root, r_x[i].first, r_x[i].second, r_y[i].first, r_y[i].second, 0);
+	//cout<<r_x[0].first<<" "<<r_x[0].second<<" "<<r_y[0].first<<" "<<r_y[0].second;
+	for(i=0;i<R;i++)
+	{
+		cout<<searchTree(root, r_x[i].first, r_x[i].second, r_y[i].first, r_y[i].second, 0);
+		cout<<endl;
+	}
 }
 
 struct node* preprocessTree(pair<double,double> p_sx[], pair<double,double> p_sy[], int N, int depth)
@@ -291,17 +295,64 @@ void fillNode(int N, pair<double, double> left_s1[], pair <double, double> right
 int searchTree(struct node* root, int x1, int x2, int y1, int y2, int depth)
 {
 	double node_x, node_y;
-	node_x = root->value.first;
-	node_y = root->value.second;
 	int left_ans;
 	int right_ans;
+	
+	if(root == NULL) return 0;
+
+	node_x = root->value.first;
+	node_y = root->value.second;	
+
 	if(depth%2 == 0)
 	{
-		if( node_x >=x1 && node_x<= x2)
+		if( (double_gt(node_x, x1) && double_lt(node_x,x2)) || 
+		     double_equal(node_x, x1) || double_equal(node_x, x2) )
 		{
-		
+			
 			left_ans = searchTree(root->left, x1, x2, y1, y2, depth+1);
 			right_ans = searchTree(root->right, x1, x2, y1, y2, depth+1);
+			
+			if( (double_gt(node_y, y1) && double_lt(node_y,y2) ) || 
+		     	     double_equal(node_y, y1) || double_equal(node_y, y2) )
+		     		
+				return 1 + left_ans + right_ans;
+			
+			else return left_ans + right_ans;
+		}
+		
+		if(double_lt(node_x, x1))
+		{
+			return searchTree(root->right, x1, x2, y1, y2, depth+1);
+		}
+		else if(double_gt(node_x, x2))
+		{
+			return searchTree(root->left, x1, x2, y1, y2, depth+1);
+		}
+	}
+	else
+	{
+		if( (double_gt(node_y, y1) && double_lt(node_y,y2)) || 
+		     double_equal(node_y, y1) || double_equal(node_y, y2) )
+		{
+			
+			left_ans = searchTree(root->left, x1, x2, y1, y2, depth+1);
+			right_ans = searchTree(root->right, x1, x2, y1, y2, depth+1);
+			
+			if( (double_gt(node_x, x1) && double_lt(node_x,x2) ) || 
+		     	     double_equal(node_x, x1) || double_equal(node_x, x2) )
+		     		
+				return 1 + left_ans + right_ans;
+			
+			else return left_ans + right_ans;
+		}
+		
+		if(double_lt(node_y, y1))
+		{
+			return searchTree(root->right, x1, x2, y1, y2, depth+1);
+		}
+		else if(double_gt(node_y, y2))
+		{
+			return searchTree(root->left, x1, x2, y1, y2, depth+1);
 		}
 	}
 }
