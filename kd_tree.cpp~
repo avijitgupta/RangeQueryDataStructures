@@ -32,7 +32,10 @@ int main()
 	//x1<x2; y1<y2
 	int N, R, i; 
 	cin>>N>>R;
-	pair<double,double> p_sx[N], p_sy[N];
+	pair<double,double> *p_sx; 
+	p_sx = (pair<double,double>*)malloc(sizeof(pair<double,double>)*N);
+	pair <double, double> *p_sy;
+	p_sy = (pair<double,double>*)malloc(sizeof(pair<double,double>)*N);
 	
 	pair<double,double> r_x[R];
 	pair<double,double> r_y[R];
@@ -88,7 +91,8 @@ int main()
 	*/
 	struct node* root;
 	root = preprocessTree(p_sx, p_sy, N, 0);
-	
+	free(p_sx);
+	free(p_sy);
 	//cout<<"Root\n"<<root->value.first<< " "<<root->value.second;
 /*	cout<<"Ineorder \n";
 	inorder(root);
@@ -108,20 +112,33 @@ struct node* preprocessTree(pair<double,double> p_sx[], pair<double,double> p_sy
 	int i;
 	if(N <= 0) return NULL;
 	struct node* root = new node;
-	pair<double,double>  p_sx_l[N/2];
-	pair<double, double> p_sx_r [N/2];
-	pair<double, double> p_sy_l[N/2];
-	pair<double, double> p_sy_r[N/2];
-
+	pair<double,double>  *p_sx_l;
+	pair<double, double> *p_sx_r;
+	pair<double, double> *p_sy_l;
+	pair<double, double> *p_sy_r;
+	
+	p_sx_l = (pair<double,double>*)malloc(sizeof(pair<double,double>)*(N/2));
+	p_sx_r = (pair<double,double>*)malloc(sizeof(pair<double,double>)*(N/2));
+	p_sy_l = (pair<double,double>*)malloc(sizeof(pair<double,double>)*(N/2));
+	p_sy_r = (pair<double,double>*)malloc(sizeof(pair<double,double>)*(N/2));
+	
 	if(depth%2 ==0)
 	{
 		fillNode(N, p_sx_l, p_sx_r, p_sx, p_sx[N/2], p_sy_l, p_sy_r, p_sy, FILTER_X);
 		root->value = p_sx[N/2];
 		root->left = preprocessTree(p_sx_l, p_sy_l, N/2, depth+1);
+		free(p_sx_l);
+		free(p_sy_l);
+		
 		if(N%2)
 			root->right = preprocessTree(p_sx_r, p_sy_r, N/2, depth+1);
 		else 
 			root->right =  preprocessTree(p_sx_r, p_sy_r, N/2 - 1,  depth+1);;
+		
+		free(p_sx_r);
+		free(p_sy_r);
+		
+		
 		return root;
 		
 	}
@@ -131,11 +148,18 @@ struct node* preprocessTree(pair<double,double> p_sx[], pair<double,double> p_sy
 		struct node* root = new node;
 		fillNode(N, p_sy_l, p_sy_r, p_sy, p_sy[N/2], p_sx_l, p_sx_r, p_sx, FILTER_Y);
 		root->value = p_sy[N/2];
-		root->left = preprocessTree(p_sy_l, p_sy_l, N/2, depth+1);
+		root->left = preprocessTree(p_sx_l, p_sy_l, N/2, depth+1);
+		free(p_sx_l);
+		free(p_sy_l);
+	
 		if(N%2) 
-			root->right = preprocessTree(p_sy_r, p_sy_r, N/2, depth+1);
+			root->right = preprocessTree(p_sx_r, p_sy_r, N/2, depth+1);
 		else 
-			root->right =  preprocessTree(p_sy_r, p_sy_r, N/2 - 1, depth+1);;
+			root->right =  preprocessTree(p_sx_r, p_sy_r, N/2 - 1, depth+1);;
+		
+		free(p_sx_r);
+		free(p_sy_r);
+		
 		
 		return root;
 	}
