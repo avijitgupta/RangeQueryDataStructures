@@ -17,7 +17,7 @@ struct node
 struct node* preprocessTree(pair<double,double> p_sx[], pair<double,double> p_sy[], int N, int depth);
 bool sortX (pair<double,double> i,pair<double,double> j);
 bool sortY (pair<double,double> i,pair<double,double> j);
-int searchTree(struct node* root, int x1, int x2, int y1, int y2, int depth);
+int searchTree(struct node* root, double x1, double x2, double y1, double y2, int depth);
 int double_equal(double a, double b);
 int double_lt(double a, double b);
 int double_gt(double a, double b);
@@ -292,7 +292,7 @@ void fillNode(int N, pair<double, double> left_s1[], pair <double, double> right
 
 }
 
-int searchTree(struct node* root, int x1, int x2, int y1, int y2, int depth)
+int searchTree(struct node* root, double x1, double x2, double y1, double y2, int depth)
 {
 	double node_x, node_y;
 	int left_ans;
