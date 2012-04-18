@@ -81,7 +81,9 @@ int main()
 			    (double_equal(p_sx[i].first,r_x[j].second) || double_lt(p_sx[i].first, r_x[j].second)) &&
 			    (double_equal(p_sx[i].second,r_y[j].first) || double_gt(p_sx[i].second, r_y[j].first)) && 
 			    (double_equal(p_sx[i].second,r_y[j].second) || double_lt(p_sx[i].second, r_y[j].second)) )
-				count++;	    
+				{	count++;	    
+					cout<<p_sx[i].first<<" "<<p_sx[i].second<<endl;
+				}
 		}
 
 		cout<<count<<endl;

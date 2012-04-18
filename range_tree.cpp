@@ -249,22 +249,28 @@ void merge(pair<double, double> *A, int La, pair<double, double>* B, int Lb, pai
 
 int searchTree(struct node* root, double x1, double x2, double y1, double y2)
 {
+	struct node* lca;
+	//cout<<"Searching Left leaf";
 	struct node* left_leaf = searchLeftLeaf(root, x1);
 	//cout<<"Searching right leaf";
 	struct node* right_leaf = searchRightLeaf(root, x2);
 	//cout<<"End";
-	struct node* lca = LCA(root, left_leaf, right_leaf);
-	//cout<<"Left Leaf "<<left_leaf->value.first<<" "<<left_leaf->value.second<<endl;
-	//cout<<"Right Leaf "<<right_leaf->value.first<<" "<<right_leaf->value.second<<endl;
-	//cout<<"LCA "<<lca->value.first<<" "<<lca->value.second<<endl;
-	
+	if(left_leaf != right_leaf)
+		lca = LCA(root, left_leaf, right_leaf);
+	else lca = root; // There can be only one path!
+	/*cout<<"Left Leaf "<<left_leaf->value.first<<" "<<left_leaf->value.second<<endl;
+	cout<<"Right Leaf "<<right_leaf->value.first<<" "<<right_leaf->value.second<<endl;
+	cout<<"LCA "<<lca->value.first<<" "<<lca->value.second<<endl;
+	*/
 	int left_result = findLeftSubtree(lca->left, lca, x1, x2, y1, y2, 0, LEFT_NODE);
 	//cout<<"Left Nodes " << left_result<<endl;
 	int right_result = findRightSubtree(lca->right, lca, x1, x2, y1, y2, 0, RIGHT_NODE);
 	//cout<<"Right Nodes " << right_result<<endl;
+	
+	
 	if( inBoundedBox(lca->value.first, lca->value.second, x1, x2, y1, y2) )
 	{
-		
+		//cout<<"Root";		
 		return left_result + right_result + 1;
 	}
 	
@@ -298,6 +304,7 @@ int findLeftSubtree(struct node *root, struct node* parent, double x1, double x2
 					}
 					if( inBoundedBox(x, y, x1, x2, y1, y2) )
 					{
+//						cout<<x<<" "<<y<<endl;
 						count ++;
 					}
 					start ++;
@@ -311,6 +318,7 @@ int findLeftSubtree(struct node *root, struct node* parent, double x1, double x2
 		
 		if( inBoundedBox(x, y, x1, x2, y1, y2) )
 		{
+//			cout<<x<<" "<<y<<endl;
 			count ++;
 		}
 		
@@ -325,6 +333,7 @@ int findLeftSubtree(struct node *root, struct node* parent, double x1, double x2
 			
 			if( inBoundedBox(x, y, x1, x2, y1, y2) )
 			{
+//				cout<<x<<" "<<y<<endl;
 				count ++;
 			}
 			
@@ -345,7 +354,8 @@ int findLeftSubtree(struct node *root, struct node* parent, double x1, double x2
 			y = root->value.second;
 			
 			if( inBoundedBox(x, y, x1, x2, y1, y2) )
-			{
+			{		
+			//cout<<x<<" "<<y<<endl;
 					count ++;
 			}
 			return count;    //if root->right isnt true, root->left has to be true and the leaf too! 
@@ -368,6 +378,7 @@ int findLeftSubtree(struct node *root, struct node* parent, double x1, double x2
 			y = root->value.second;
 			if( inBoundedBox(x, y, x1, x2, y1, y2) )
 			{
+			//	cout<<x<<" "<<y<<endl;
 				count ++;
 			}
 			
@@ -376,6 +387,7 @@ int findLeftSubtree(struct node *root, struct node* parent, double x1, double x2
 			y = root->right->value.second;
 			if( inBoundedBox(x, y, x1, x2, y1, y2) )
 			{
+			//	cout<<x<<" "<<y<<endl;
 				count ++;
 			}
 			
@@ -421,6 +433,7 @@ int findRightSubtree(struct node *root, struct node* parent, double x1, double x
 					}
 					if( inBoundedBox(x, y, x1, x2, y1, y2) )
 					{
+					//	cout<<x<<" "<<y<<endl;
 						//cout<<"In box " << x<<" "<< y<< endl;
 						count ++;
 					}
@@ -437,6 +450,7 @@ int findRightSubtree(struct node *root, struct node* parent, double x1, double x
 			
 		if( inBoundedBox(x, y, x1, x2, y1, y2) )
 		{
+		///	cout<<x<<" "<<y<<endl;
 			count ++;
 		}
 		
@@ -451,6 +465,7 @@ int findRightSubtree(struct node *root, struct node* parent, double x1, double x
 			
 			if( inBoundedBox(x, y, x1, x2, y1, y2) )
 			{
+		//		cout<<x<<" "<<y<<endl;
 				count ++;
 			}
 			
@@ -474,6 +489,7 @@ int findRightSubtree(struct node *root, struct node* parent, double x1, double x
 			
 				if( inBoundedBox(x, y, x1, x2, y1, y2) )
 				{
+		//		cout<<x<<" "<<y<<endl;
 					count ++;
 				}
 			
@@ -481,6 +497,7 @@ int findRightSubtree(struct node *root, struct node* parent, double x1, double x
 			y = root->left->value.second;
 			if( inBoundedBox(x, y, x1, x2, y1, y2) )
 			{
+		//		cout<<x<<" "<<y<<endl;
 				count ++;
 			}
 			
@@ -503,6 +520,7 @@ int findRightSubtree(struct node *root, struct node* parent, double x1, double x
 			
 			if( inBoundedBox(x, y, x1, x2, y1, y2) )
 			{
+		//			cout<<x<<" "<<y<<endl;
 					count ++;
 			}
 			
@@ -532,26 +550,37 @@ int binarySearch( double value, pair<double, double> a[], int l, int r )
 
 struct node* searchLeftLeaf(struct node* root, double low)
 {
+//	cout<<root->value.first<<" "<<root->value.second<<endl;
+	
 	if(!root->left && !root->right)return root; 
 	
 	if(double_gt(low, root->value.first))
 	{
 		if(root->right)
 			return searchLeftLeaf(root->right, low);
-		else return root->left;    //if root->right isnt true, root->left has to be true and the leaf too! 
-					  // This is because the tree is balanced
+		else
+		{
+//		 cout<<root->left->value.first<<" "<<root->left->value.second<<endl;
+	
+		 return root->left;    //if root->right isnt true, root->left has to be true and the leaf too! 
+		}			  // This is because the tree is balanced
 	}
 	else //equal case
 	{
 		if(root->left)
 			return searchLeftLeaf(root->left, low);
-		else return root->right;  //if root->left isnt true, root->RIGHT has to be true and the leaf too! 
-	}				  // This is because the tree is balanced
+		else 
+		{
+//		cout<<root->right->value.first<<" "<<root->right->value.second<<endl;
+	
+		return root->right;  //if root->left isnt true, root->RIGHT has to be true and the leaf too! 
+		}	
+	}			  // This is because the tree is balanced
 }
 
 struct node* searchRightLeaf(struct node* root, double high)
 {
-	//cout<<root->value.first<<" "<<root->value.second<<endl;
+//	cout<<root->value.first<<" "<<root->value.second<<endl;
 	
 	if(!root->left && !root->right)
 	{
@@ -563,7 +592,7 @@ struct node* searchRightLeaf(struct node* root, double high)
 			return searchRightLeaf(root->right, high);
 		else 
 		{
-		//cout<<root->left->value.first<<" "<<root->left->value.second<<endl;
+//		cout<<root->left->value.first<<" "<<root->left->value.second<<endl;
 		return root->left;    //if root->right isnt true, root->left has to be true and the leaf too! 
 		}			  // This is because the tree is balanced
 	}
@@ -573,7 +602,7 @@ struct node* searchRightLeaf(struct node* root, double high)
 			return searchRightLeaf(root->left, high);
 		else 
 		{
-		//	cout<<root->right->value.first<<" "<<root->right->value.second<<endl;
+//			cout<<root->right->value.first<<" "<<root->right->value.second<<endl;
 		return root->right;
 		}  //if root->left isnt true, root->RIGHT has to be true and the leaf too! 
 	}	
