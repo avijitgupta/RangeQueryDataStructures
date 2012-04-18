@@ -98,15 +98,12 @@ int main()
 /*	cout<<"Root\n"<<root->value.first<< " "<<root->value.second;
 	cout<<"Inorder \n";
 	inorder(root);
-/*	cout<<"Preorder \n";
+	cout<<"Preorder \n";
 	preorder(root);
 */
 	for(i=0;i<R;i++)
 	{
 	//	cout<<"Range: "<<r_x[i].first<<" "<<r_x[i].second<<" "<<r_y[i].first<<" "<< r_y[i].second<<endl;
-		if(double_equal(r_x[i].first, 1.0) && double_equal(r_x[i].second, 8.0) && 
-		double_equal(r_y[i].first, 37.0) && double_equal(r_x[i].first, 39.0) )
-		debug =0;
 		
 		int num_points = searchTree(root, r_x[i].first, r_x[i].second, r_y[i].first, r_y[i].second);
 		//cout<<"Total points = "<<num_points<<endl;
@@ -289,28 +286,18 @@ int findLeftSubtree(struct node *root, struct node* parent, double x1, double x2
 			if(parent->right)
 			{
 				int start = binarySearch(y1, parent->right->y_root, 0, parent->right->Ny - 1);
-				if(debug)
-				cout<<"Parent "<< parent->value.first << " " << parent->value.second<<endl;
 				while(start < parent->right->Ny)
 				{
-					if(debug)
-					cout<<" start "<< start<<" ";	
 					
 					x = parent->right->y_root[start].first;
 					y = parent->right->y_root[start].second;
-					if(debug)
-					cout<<"Outside box " << x<<" "<< y<< endl;
 						
 					if(double_gt(y, y2))
 					{ 
-						if(debug)
-						cout<<"Broken " << x<<" "<< y<< endl;
 						break;
 					}
 					if( inBoundedBox(x, y, x1, x2, y1, y2) )
 					{
-						if(debug)
-						cout<<"In box " << x<<" "<< y<< endl;
 						count ++;
 					}
 					start ++;
