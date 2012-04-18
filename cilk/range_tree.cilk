@@ -18,7 +18,8 @@ struct node
 };
 
 
-void merge(pair<double, double> *A, int La, pair<double, double>* B, int Lb, pair<double, double>* merged);
+//void merge(pair<double, double> *A, int La, pair<double, double>* B, int Lb, pair<double, double>* merged);
+void merge( pair<double,double> t[], pair<double,double> a[], pair<double,double> b[], int p1, int r1, int p2, int r2, int p3 );
 bool sortX (pair<double,double> i,pair<double,double> j);
 bool sortY (pair<double,double> i,pair<double,double> j);
 int searchTree(struct node* root, double x1, double x2, double y1, double y2);
@@ -212,7 +213,7 @@ struct node* preprocessTree(int low, int high)
 		y_subtree = (pair<double, double>*) malloc( y_tree_len * sizeof(pair<double, double>) );
 		
 		//merge 
-		merge(root->left->y_root, root->left->Ny, root->right->y_root, root->right->Ny, y_subtree);
+		merge(y_subtree, root->left->y_root, root->right->y_root, 0, root->left->Ny -1, 0,  root->right->Ny-1, 0);
 		//Insert root->value in the merged array
 		while(y_subtree[i].second < root->value.second && i < (y_tree_len -1) )i++;
 		
@@ -238,7 +239,7 @@ struct node* preprocessTree(int low, int high)
 }
 
 //merges A and B into merged
-
+/*
 void merge(pair<double, double> *A, int La, pair<double, double>* B, int Lb, pair<double, double>* merged)
 {
 	int i=0, j=0, k=0;
@@ -251,6 +252,31 @@ void merge(pair<double, double> *A, int La, pair<double, double>* B, int Lb, pai
 	while(j < Lb) merged[k++] = B[j++]; 
 	
 }
+*/
+
+void merge( pair<double,double> t[], pair<double,double> a[], pair<double,double> b[], int p1, int r1, int p2, int r2, int p3 )
+{
+
+    int l1=r1-p1+1;
+    int l2=r2-p2+1;
+    
+    if (l1<l2)
+    {
+        merge(t,b,a, p2, r2, p1,r1, p3);
+    }
+
+    if (l1==0) return;
+    int q1 =(p1+r1)/2;
+    
+    int q2 = binarySearch(a[q1].second,b,p2,r2);
+    
+    int q3 = p3+(q1-p1)+(q2-p2);
+    t[q3] = a[q1];
+    cilk_spawn merge(t,a,b, p1,q1-1,p2,q2-1,p3);
+    merge(t,a,b,q1+1,r1,q2,r2,q3+1);
+    cilk_sync;
+}
+
 
 int searchTree(struct node* root, double x1, double x2, double y1, double y2)
 {
