@@ -314,8 +314,18 @@ int findLeftSubtree(struct node *root, struct node* parent, double x1, double x2
 			int result =  count + findLeftSubtree(root->right, root, x1, x2, y1, y2, 1, RIGHT_NODE);
 			return result;
 		}
-		else return count;    //if root->right isnt true, root->left has to be true and the leaf too! 
-					  // This is because the tree is balanced
+		else 
+		{
+			x = root->value.first; 
+			y = root->value.second;
+			
+			if( inBoundedBox(x, y, x1, x2, y1, y2) )
+			{
+					count ++;
+			}
+			return count;    //if root->right isnt true, root->left has to be true and the leaf too! 
+		
+		}			  // This is because the tree is balanced
 	}
 	else //equal case
 	{
@@ -327,6 +337,15 @@ int findLeftSubtree(struct node *root, struct node* parent, double x1, double x2
 		//	return searchLeftLeaf(root->left, low);
 		else 
 		{
+			//We need to check both for itself and leaf before returning
+
+			x = root->value.first; 
+			y = root->value.second;
+			if( inBoundedBox(x, y, x1, x2, y1, y2) )
+			{
+				count ++;
+			}
+
 			x = root->right->value.first;  //if root->left isnt true, root->RIGHT has to be true and the leaf too! 
 			y = root->right->value.second;
 			if( inBoundedBox(x, y, x1, x2, y1, y2) )
@@ -423,6 +442,16 @@ int findRightSubtree(struct node *root, struct node* parent, double x1, double x
 		}
 		else 
 		{
+			
+				x = root->value.first; 
+				y = root->value.second;
+			
+				if( inBoundedBox(x, y, x1, x2, y1, y2) )
+				{
+					count ++;
+				}
+			
+
 			x = root->left->value.first;  //if root->left isnt true, root->RIGHT has to be true and the leaf too! 
 			y = root->left->value.second;
 			if( inBoundedBox(x, y, x1, x2, y1, y2) )
@@ -443,6 +472,13 @@ int findRightSubtree(struct node *root, struct node* parent, double x1, double x
 
 		else 
 		{
+			x = root->value.first; 
+			y = root->value.second;
+			
+			if( inBoundedBox(x, y, x1, x2, y1, y2) )
+			{
+					count ++;
+			}
 			return count;
 		}
 	}
@@ -493,14 +529,14 @@ struct node* searchRightLeaf(struct node* root, double high)
 	if(double_gt(high, root->value.first) || double_equal(high, root->value.first))
 	{
 		if(root->right)
-			return searchLeftLeaf(root->right, high);
+			return searchRightLeaf(root->right, high);
 		else return root->left;    //if root->right isnt true, root->left has to be true and the leaf too! 
 					  // This is because the tree is balanced
 	}
 	else 
 	{
 		if(root->left)
-			return searchLeftLeaf(root->left, high);
+			return searchRightLeaf(root->left, high);
 		else return root->right;  //if root->left isnt true, root->RIGHT has to be true and the leaf too! 
 	}	
 }
