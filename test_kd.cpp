@@ -14,11 +14,11 @@ int main()
 	count = 0;
 	for(i = 1;i< HIGH_X ; i+=2)
 	{
-		for(j = i+2; j<HIGH_Y; j+=2)
+		for(j = i+2; j<HIGH_Y; j+=1)
 		{
 			for(k=1;k<HIGH_X;k+=2)
 			{
-				for(l=k+2;l<HIGH_Y; l+=2)
+				for(l=k+2;l<HIGH_Y; l+=1)
 				{
 					count++;
 				}
@@ -36,11 +36,11 @@ int main()
 	
 	for(i = 1;i< HIGH_X ; i+=2)
 	{
-		for(j = i+2; j<HIGH_Y; j+=2)
+		for(j = i+2; j<HIGH_Y; j+=1)
 		{
 			for(k=1;k<HIGH_X;k+=2)
 			{
-				for(l=k+2;l<HIGH_Y; l+=2)
+				for(l=k+2;l<HIGH_Y; l+=1)
 				{
 					cout<<i<<" "<<j<<" "<<k<<" "<<l<<endl;
 				}

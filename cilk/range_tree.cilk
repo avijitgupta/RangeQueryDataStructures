@@ -18,7 +18,6 @@ struct node
 };
 
 
-//void merge(pair<double, double> *A, int La, pair<double, double>* B, int Lb, pair<double, double>* merged);
 void merge( pair<double,double> t[], pair<double,double> a[], pair<double,double> b[], int p1, int r1, int p2, int r2, int p3 );
 bool sortX (pair<double,double> i,pair<double,double> j);
 bool sortY (pair<double,double> i,pair<double,double> j);
