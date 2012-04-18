@@ -122,7 +122,7 @@ struct node* preprocessTree(int low, int high)
 	{
 		return NULL;
 	}
-	
+	pair<double, double>* y_temp;
 	pair<double, double>* y_subtree;
 	
 	int mid = (high + low)/2;
@@ -149,27 +149,9 @@ struct node* preprocessTree(int low, int high)
 		int y_tree_len = root->right->Ny + 1; // Current node's information
 		y_subtree = (pair<double, double>*) malloc( y_tree_len * sizeof(pair<double, double>) );
 		
-		for(i = 0; i<y_tree_len - 1; i++)
-		{
-			y_subtree[i] =  root->right->y_root[i];
-		}
-		
-		i=0;
-		
-		while(y_subtree[i].second < root->value.second && i < (y_tree_len -1) )i++;
-		
-		pair<double, double> temp = y_subtree[i]; 
-		
-		y_subtree[i] = root->value;
-		i++;
-		
-		while(i < y_tree_len)
-		{
-			pair<double, double> k = y_subtree[i];
-			y_subtree[i] = temp;
-			temp = k;
-			i++;
-		}
+		pair<double, double> toadd[1];
+		toadd[0] = root->value;
+		merge(y_subtree, root->right->y_root, toadd, 0, root->right->Ny -1, 0, 0, 0);
 		
 		//y_root now points to the merged subtree
 		root->y_root = y_subtree;
@@ -181,26 +163,9 @@ struct node* preprocessTree(int low, int high)
 		int y_tree_len = root->left->Ny + 1; // Current node's information
 		y_subtree = (pair<double, double>*) malloc( y_tree_len * sizeof(pair<double, double>) );
 		
-		for(i = 0; i<y_tree_len - 1; i++)
-		{
-			y_subtree[i] =  root->left->y_root[i];
-		}
-		
-		i=0;
-		
-		while(y_subtree[i].second < root->value.second && i < (y_tree_len -1) )i++;
-		
-		pair<double, double> temp = y_subtree[i]; 
-		y_subtree[i] = root->value;
-		i++;
-		
-		while(i < y_tree_len)
-		{
-			pair<double, double> k = y_subtree[i];
-			y_subtree[i] = temp;
-			temp = k;
-			i++;
-		}
+		pair<double, double> toadd[1];
+		toadd[0] = root->value;
+		merge(y_subtree, root->left->y_root, toadd, 0, root->left->Ny -1, 0, 0, 0);
 		
 		//y_root now points to the merged subtree
 		root->y_root = y_subtree;
@@ -210,26 +175,18 @@ struct node* preprocessTree(int low, int high)
 	{
 		int i= 0;
 		int y_tree_len = root->left->Ny + root->right->Ny + 1; // Current node's information
+		y_temp = (pair<double, double>*) malloc( (y_tree_len - 1) * sizeof(pair<double, double>) );
 		y_subtree = (pair<double, double>*) malloc( y_tree_len * sizeof(pair<double, double>) );
 		
 		//merge 
-		merge(y_subtree, root->left->y_root, root->right->y_root, 0, root->left->Ny -1, 0,  root->right->Ny-1, 0);
+		merge(y_temp, root->left->y_root, root->right->y_root, 0, root->left->Ny -1, 0,  root->right->Ny-1, 0);
 		//Insert root->value in the merged array
-		while(y_subtree[i].second < root->value.second && i < (y_tree_len -1) )i++;
+		pair<double, double> toadd[1];
+		toadd[0] = root->value;
+		merge(y_subtree, y_temp, toadd, 0, y_tree_len -2, 0, 0, 0);
 		
-		pair<double, double> temp = y_subtree[i]; 
-		y_subtree[i] = root->value;
-		i++;
+		free(y_temp);		
 		
-		while(i < y_tree_len)
-		{
-			pair<double, double> k = y_subtree[i];
-			y_subtree[i] = temp;
-			temp = k;
-			i++;
-		}
-		
-		//y_root now points to the merged subtree
 		root->y_root = y_subtree;
 		root->Ny = y_tree_len;
 	}
@@ -238,21 +195,6 @@ struct node* preprocessTree(int low, int high)
 
 }
 
-//merges A and B into merged
-/*
-void merge(pair<double, double> *A, int La, pair<double, double>* B, int Lb, pair<double, double>* merged)
-{
-	int i=0, j=0, k=0;
-	while(i < La && j< Lb)
-	{
-		if(double_lt(A[i].second,B[j].second)) merged[k++] = A[i++];
-		else merged[k++] = B[j++];
-	}	
-	while(i < La) merged[k++] = A[i++];
-	while(j < Lb) merged[k++] = B[j++]; 
-	
-}
-*/
 
 void merge( pair<double,double> t[], pair<double,double> a[], pair<double,double> b[], int p1, int r1, int p2, int r2, int p3 )
 {
