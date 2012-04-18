@@ -223,7 +223,10 @@ int searchTree(struct node* root, double x1, double x2, double y1, double y2)
 {
 	struct node* left_leaf = searchLeftLeaf(root, x1);
 	struct node* right_leaf = searchRightLeaf(root, x2);
-	struct node* lca = LCA(root, left_leaf, right_leaf);
+	struct node* lca;
+	if(left_leaf != right_leaf)
+		lca = LCA(root, left_leaf, right_leaf);
+	else lca = root; // There can be only one path!
 	/*cout<<"Left Leaf "<<left_leaf->value.first<<" "<<left_leaf->value.second<<endl;
 	cout<<"Right Leaf "<<right_leaf->value.first<<" "<<right_leaf->value.second<<endl;
 	cout<<"LCA "<<lca->value.first<<" "<<lca->value.second<<endl;*/
