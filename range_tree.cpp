@@ -130,7 +130,7 @@ struct node* preprocessTree(int low, int high)
 	
 	if(root->left == NULL && root->right == NULL) // A leaf node
 	{
-		y_subtree = (pair<double, double>*) malloc(sizeof(double));
+		y_subtree = (pair<double, double>*) malloc(sizeof(pair<double, double>));
 		*y_subtree = p_sx[mid];
 		//cout<<"Allocated "<< p_sx[mid].second <<" to leaf "<< p_sx[mid].first<<" "<<p_sx[mid].second;
 		root->Ny = 1;
